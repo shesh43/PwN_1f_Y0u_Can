@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Aegis Health - Login</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="auth-box">
+    <h1>Aegis Health</h1>
+    <p class="sub">Telehealth & Personal Health Records</p>
+    <form id="loginForm">
+      <label>Email</label>
+      <input type="email" id="email" required>
+      <label>Password</label>
+      <input type="password" id="password" required>
+      <button type="submit">Log In</button>
+    </form>
+    <p id="err" class="error"></p>
+    <p class="hint">No account? <a href="register.html">Register</a></p>
+  </div>
+  <script src="app.js"></script>
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      try {
+        const data = await api('/api/v2/auth/login', 'POST', { email, password });
+        // VULN: tokens stored in localStorage (XSS-accessible) rather than
+        // an httpOnly cookie - if any stored/reflected XSS exists anywhere
+        // in the app, session tokens are directly stealable via JS.
+        localStorage.setItem('access_token', data.access_token);
+        localStorage.setItem('refresh_token', data.refresh_token);
+        window.location.href = 'dashboard.html';
+      } catch (err) {
+        document.getElementById('err').textContent = err.message;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Aegis Health - Dashboard</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav>
+    <span class="brand">Aegis Health</span>
+    <span id="whoami"></span>
+    <button id="logout">Log out</button>
+  </nav>
+
+  <main class="grid">
+    <section class="card">
+      <h2>My Records</h2>
+      <button id="loadRecords">Refresh</button>
+      <div id="records"></div>
+      <h3>Add note</h3>
+      <input id="recTitle" placeholder="Title">
+      <textarea id="recContent" placeholder="Content"></textarea>
+      <button id="addRecord">Add</button>
+    </section>
+
+    <section class="card">
+      <h2>Look up a record by ID</h2>
+      <!-- Direct object reference lookup, exactly as a client would expose it -->
+      <input id="lookupId" type="number" placeholder="Record ID">
+      <button id="lookupBtn">Fetch</button>
+      <pre id="lookupResult"></pre>
+    </section>
+
+    <section class="card">
+      <h2>Import lab report from URL</h2>
+      <input id="importTitle" placeholder="Title">
+      <input id="importUrl" placeholder="https://provider.example.com/report.pdf">
+      <button id="importBtn">Import</button>
+      <pre id="importResult"></pre>
+    </section>
+
+    <section class="card">
+      <h2>Prescriptions & Refills</h2>
+      <input id="rxPatientId" type="number" placeholder="Patient ID">
+      <button id="loadRx">Load</button>
+      <div id="rxList"></div>
+      <h3>Request refill</h3>
+      <input id="refillPrescriptionId" type="number" placeholder="Prescription ID">
+      <input id="refillQty" type="number" placeholder="Quantity">
+      <button id="refillBtn">Request Refill</button>
+      <pre id="refillResult"></pre>
+    </section>
+
+    <section class="card">
+      <h2>AI Symptom Checker</h2>
+      <div id="chatLog"></div>
+      <input id="chatInput" placeholder="Describe your symptoms...">
+      <button id="chatSend">Send</button>
+    </section>
+
+    <section class="card">
+      <h2>Messages</h2>
+      <input id="msgTo" type="number" placeholder="Recipient user ID">
+      <input id="msgBody" placeholder="Message">
+      <button id="msgSend">Send</button>
+      <input id="threadWith" type="number" placeholder="View thread with user ID">
+      <button id="threadLoad">Load thread</button>
+      <div id="msgThread"></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    (async () => {
+      try {
+        const me = await api('/api/v2/auth/me', 'GET');
+        document.getElementById('whoami').textContent = `${me.full_name} (${me.role}, id ${me.id})`;
+      } catch (e) {
+        window.location.href = 'index.html';
+      }
+    })();
+
+    document.getElementById('logout').onclick = () => {
+      localStorage.clear();
+      window.location.href = 'index.html';
+    };
+
+    document.getElementById('loadRecords').onclick = async () => {
+      const recs = await api('/api/v2/records', 'GET');
+      document.getElementById('records').innerHTML = recs.map(r =>
+        `<div class="rec"><b>#${r.id} ${r.title}</b> (${r.record_type})<br>${r.content_text || ''}</div>`
+      ).join('');
+    };
+
+    document.getElementById('addRecord').onclick = async () => {
+      await api('/api/v2/records', 'POST', {
+        title: document.getElementById('recTitle').value,
+        record_type: 'note',
+        content_text: document.getElementById('recContent').value,
+      });
+      document.getElementById('loadRecords').click();
+    };
+
+    document.getElementById('lookupBtn').onclick = async () => {
+      const id = document.getElementById('lookupId').value;
+      try {
+        const rec = await api(`/api/v2/records/${id}`, 'GET');
+        document.getElementById('lookupResult').textContent = JSON.stringify(rec, null, 2);
+      } catch (e) {
+        document.getElementById('lookupResult').textContent = e.message;
+      }
+    };
+
+    document.getElementById('importBtn').onclick = async () => {
+      try {
+        const rec = await api('/api/v2/records/fetch-from-url', 'POST', {
+          title: document.getElementById('importTitle').value,
+          source_url: document.getElementById('importUrl').value,
+        });
+        document.getElementById('importResult').textContent = JSON.stringify(rec, null, 2);
+      } catch (e) {
+        document.getElementById('importResult').textContent = e.message;
+      }
+    };
+
+    document.getElementById('loadRx').onclick = async () => {
+      const pid = document.getElementById('rxPatientId').value;
+      try {
+        const list = await api(`/api/v2/pharmacy/prescriptions/${pid}`, 'GET');
+        document.getElementById('rxList').innerHTML = list.map(p =>
+          `<div>#${p.id} ${p.medication} qty ${p.quantity} refills ${p.refills_used}/${p.refills_allowed} $${p.unit_price}</div>`
+        ).join('');
+      } catch (e) {
+        document.getElementById('rxList').textContent = e.message;
+      }
+    };
+
+    document.getElementById('refillBtn').onclick = async () => {
+      try {
+        const res = await api('/api/v2/pharmacy/refill', 'POST', {
+          prescription_id: Number(document.getElementById('refillPrescriptionId').value),
+          quantity: Number(document.getElementById('refillQty').value),
+        });
+        document.getElementById('refillResult').textContent = JSON.stringify(res, null, 2);
+      } catch (e) {
+        document.getElementById('refillResult').textContent = e.message;
+      }
+    };
+
+    let chatSessionId = null;
+    document.getElementById('chatSend').onclick = async () => {
+      const input = document.getElementById('chatInput');
+      const text = input.value;
+      const res = await api('/api/v2/chatbot/chat', 'POST', { session_id: chatSessionId, message: text });
+      chatSessionId = res.session_id;
+      const log = document.getElementById('chatLog');
+      // NOTE: intentionally using innerHTML with unsanitized reply content -
+      // reflected/stored XSS surface if the assistant ever echoes injected
+      // HTML from a record back into `reply`.
+      log.innerHTML += `<div class="you">You: ${text}</div><div class="bot">Assistant: ${res.reply}</div>`;
+      input.value = '';
+    };
+
+    document.getElementById('msgSend').onclick = async () => {
+      await api('/api/v2/messages', 'POST', {
+        recipient_id: Number(document.getElementById('msgTo').value),
+        body: document.getElementById('msgBody').value,
+      });
+      document.getElementById('msgBody').value = '';
+    };
+
+    document.getElementById('threadLoad').onclick = async () => {
+      const uid = document.getElementById('threadWith').value;
+      const msgs = await api(`/api/v2/messages/thread/${uid}`, 'GET');
+      document.getElementById('msgThread').innerHTML = msgs.map(m =>
+        `<div>[${m.sender_id} -> ${m.recipient_id}] ${m.body}</div>`
+      ).join('');
+    };
+  </script>
+</body>
+</html>
