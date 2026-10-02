@@ -1,0 +1,15 @@
+--> for backend setup
+cd backend
+python seed.py
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
+-----> on website -- >>> 127.0.0.1:8000/docs
+
+
+--> for fronted setup 
+cd frontend
+python -m http.server 3000
+-----> on website -- >>> 127.0.0.1:3000/
+
+
+
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
