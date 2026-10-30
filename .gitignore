@@ -1,0 +1,5 @@
+﻿backend/aegis.db
+venv/
+__pycache__/
+backend/uploads/*
+!backend/uploads/.gitkeep
