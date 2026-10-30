@@ -2,79 +2,294 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Aegis Health - Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aegis Health — Patient Portal</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <nav>
-    <span class="brand">Aegis Health</span>
-    <span id="whoami"></span>
-    <button id="logout">Log out</button>
-  </nav>
+  <div class="app-shell">
 
-  <main class="grid">
-    <section class="card">
-      <h2>My Records</h2>
-      <button id="loadRecords">Refresh</button>
-      <div id="records"></div>
-      <h3>Add note</h3>
-      <input id="recTitle" placeholder="Title">
-      <textarea id="recContent" placeholder="Content"></textarea>
-      <button id="addRecord">Add</button>
-    </section>
+    <aside class="sidebar">
+      <div class="mark">
+        <div class="mark-icon">AH</div>
+        <div class="mark-text">Aegis Health</div>
+      </div>
+      <nav>
+        <div class="nav-item active" data-section="overview">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></span>
+          Overview
+        </div>
+        <div class="nav-item" data-section="records">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h6"/></svg></span>
+          Health Records
+        </div>
+        <div class="nav-item" data-section="pharmacy">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="7" width="18" height="13" rx="1.5"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M12 11v5M9.5 13.5h5"/></svg></span>
+          Prescriptions
+        </div>
+        <div class="nav-item" data-section="messages">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+          Messages
+        </div>
+        <div class="nav-item" data-section="assistant">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9 10h.01M15 10h.01M9.5 15a3.5 3.5 0 0 0 5 0"/></svg></span>
+          AI Assistant
+        </div>
+        <div class="nav-item" data-section="import">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></span>
+          Import Records
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="identity">
+          <div class="avatar" id="avatarInitial">·</div>
+          <div class="identity-text">
+            <div class="identity-name" id="whoamiName">Loading…</div>
+            <div class="identity-role" id="whoamiRole">&nbsp;</div>
+          </div>
+        </div>
+        <button class="logout-link" id="logout">Sign out</button>
+      </div>
+    </aside>
 
-    <section class="card">
-      <h2>Look up a record by ID</h2>
-      <!-- Direct object reference lookup, exactly as a client would expose it -->
-      <input id="lookupId" type="number" placeholder="Record ID">
-      <button id="lookupBtn">Fetch</button>
-      <pre id="lookupResult"></pre>
-    </section>
+    <div class="main">
+      <div class="topbar">
+        <h1 id="pageTitle">Overview</h1>
+        <div class="topbar-meta" id="pageMeta"></div>
+      </div>
 
-    <section class="card">
-      <h2>Import lab report from URL</h2>
-      <input id="importTitle" placeholder="Title">
-      <input id="importUrl" placeholder="https://provider.example.com/report.pdf">
-      <button id="importBtn">Import</button>
-      <pre id="importResult"></pre>
-    </section>
+      <div class="content">
 
-    <section class="card">
-      <h2>Prescriptions & Refills</h2>
-      <input id="rxPatientId" type="number" placeholder="Patient ID">
-      <button id="loadRx">Load</button>
-      <div id="rxList"></div>
-      <h3>Request refill</h3>
-      <input id="refillPrescriptionId" type="number" placeholder="Prescription ID">
-      <input id="refillQty" type="number" placeholder="Quantity">
-      <button id="refillBtn">Request Refill</button>
-      <pre id="refillResult"></pre>
-    </section>
+        <!-- ── OVERVIEW ───────────────────────────────── -->
+        <section class="section-view active" id="view-overview">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Look up a record</h2>
+                <div class="panel-sub">Fetch any record by its ID</div>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="inline-form">
+                <div class="field">
+                  <label>Record ID</label>
+                  <input id="lookupId" type="number" placeholder="e.g. 3">
+                </div>
+                <button class="btn-secondary" id="lookupBtn">Fetch record</button>
+              </div>
+              <div class="result-box" id="lookupResult" style="display:none;"></div>
+            </div>
+          </div>
 
-    <section class="card">
-      <h2>AI Symptom Checker</h2>
-      <div id="chatLog"></div>
-      <input id="chatInput" placeholder="Describe your symptoms...">
-      <button id="chatSend">Send</button>
-    </section>
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>My health records</h2>
+                <div class="panel-sub">Recent entries from you and your care team</div>
+              </div>
+              <button class="btn-secondary btn-sm" id="refreshOverview">Refresh</button>
+            </div>
+            <div class="panel-body flush" id="overviewRecords">
+              <div class="empty-state">Click refresh to load your records.</div>
+            </div>
+          </div>
+        </section>
 
-    <section class="card">
-      <h2>Messages</h2>
-      <input id="msgTo" type="number" placeholder="Recipient user ID">
-      <input id="msgBody" placeholder="Message">
-      <button id="msgSend">Send</button>
-      <input id="threadWith" type="number" placeholder="View thread with user ID">
-      <button id="threadLoad">Load thread</button>
-      <div id="msgThread"></div>
-    </section>
-  </main>
+        <!-- ── RECORDS ────────────────────────────────── -->
+        <section class="section-view" id="view-records">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>My health records</h2>
+                <div class="panel-sub">Lab reports, imaging, and notes</div>
+              </div>
+              <button class="btn-secondary btn-sm" id="loadRecords">Refresh</button>
+            </div>
+            <div class="panel-body flush" id="records"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Add a note</h2>
+                <div class="panel-sub">Add a personal note to your record</div>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="field">
+                <label>Title</label>
+                <input id="recTitle" placeholder="e.g. Follow-up reminder">
+              </div>
+              <div class="field">
+                <label>Content</label>
+                <textarea id="recContent" placeholder="Write your note…"></textarea>
+              </div>
+              <button class="btn-primary" style="width:auto;" id="addRecord">Add note</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── PHARMACY ───────────────────────────────── -->
+        <section class="section-view" id="view-pharmacy">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Prescriptions</h2>
+                <div class="panel-sub">View active prescriptions by patient ID</div>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="inline-form">
+                <div class="field">
+                  <label>Patient ID</label>
+                  <input id="rxPatientId" type="number" placeholder="e.g. 1">
+                </div>
+                <button class="btn-secondary" id="loadRx">Load</button>
+              </div>
+            </div>
+            <div class="panel-body flush" id="rxList"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Request a refill</h2>
+                <div class="panel-sub">Request additional medication on an active prescription</div>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="form-row">
+                <div class="field">
+                  <label>Prescription ID</label>
+                  <input id="refillPrescriptionId" type="number" placeholder="e.g. 1">
+                </div>
+                <div class="field">
+                  <label>Quantity</label>
+                  <input id="refillQty" type="number" placeholder="e.g. 30">
+                </div>
+              </div>
+              <button class="btn-primary" style="width:auto;" id="refillBtn">Request refill</button>
+              <div class="result-box" id="refillResult" style="display:none;"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── MESSAGES ───────────────────────────────── -->
+        <section class="section-view" id="view-messages">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Send a message</h2>
+                <div class="panel-sub">Message a member of your care team</div>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="form-row">
+                <div class="field">
+                  <label>Recipient user ID</label>
+                  <input id="msgTo" type="number" placeholder="e.g. 3">
+                </div>
+              </div>
+              <div class="field">
+                <label>Message</label>
+                <textarea id="msgBody" placeholder="Write your message…"></textarea>
+              </div>
+              <button class="btn-primary" style="width:auto;" id="msgSend">Send message</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>View a thread</h2>
+                <div class="panel-sub">View messages exchanged with a user ID</div>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="inline-form">
+                <div class="field">
+                  <label>User ID</label>
+                  <input id="threadWith" type="number" placeholder="e.g. 3">
+                </div>
+                <button class="btn-secondary" id="threadLoad">Load thread</button>
+              </div>
+            </div>
+            <div class="panel-body flush" id="msgThread"></div>
+          </div>
+        </section>
+
+        <!-- ── AI ASSISTANT ───────────────────────────── -->
+        <section class="section-view" id="view-assistant">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>AI symptom checker</h2>
+                <div class="panel-sub">Describe how you're feeling for general guidance</div>
+              </div>
+            </div>
+            <div class="chat-thread" id="chatLog"></div>
+            <div class="chat-input-row">
+              <input id="chatInput" placeholder="Describe your symptoms…">
+              <button class="btn-primary" style="width:auto;" id="chatSend">Send</button>
+            </div>
+            <div class="disclaimer-note">This assistant does not provide medical diagnoses. For emergencies, contact your care team directly.</div>
+          </div>
+        </section>
+
+        <!-- ── IMPORT ─────────────────────────────────── -->
+        <section class="section-view" id="view-import">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Import a lab report</h2>
+                <div class="panel-sub">Import results from an external provider by URL</div>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="field">
+                <label>Title</label>
+                <input id="importTitle" placeholder="e.g. Quest Diagnostics — Q3 Panel">
+              </div>
+              <div class="field">
+                <label>Source URL</label>
+                <input id="importUrl" placeholder="https://provider.example.com/report.pdf">
+              </div>
+              <button class="btn-primary" style="width:auto;" id="importBtn">Import record</button>
+              <div class="result-box" id="importResult" style="display:none;"></div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
 
   <script src="app.js"></script>
   <script>
+    // ── Navigation ─────────────────────────────────────────
+    const titles = {
+      overview: 'Overview', records: 'Health Records', pharmacy: 'Prescriptions',
+      messages: 'Messages', assistant: 'AI Assistant', import: 'Import Records'
+    };
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.querySelectorAll('.section-view').forEach(v => v.classList.remove('active'));
+        item.classList.add('active');
+        const key = item.dataset.section;
+        document.getElementById('view-' + key).classList.add('active');
+        document.getElementById('pageTitle').textContent = titles[key];
+      });
+    });
+
+    // ── Identity ───────────────────────────────────────────
     (async () => {
       try {
         const me = await api('/api/v2/auth/me', 'GET');
-        document.getElementById('whoami').textContent = `${me.full_name} (${me.role}, id ${me.id})`;
+        document.getElementById('whoamiName').textContent = me.full_name;
+        document.getElementById('whoamiRole').textContent = me.role;
+        document.getElementById('avatarInitial').textContent = me.full_name.charAt(0).toUpperCase();
+        document.getElementById('pageMeta').textContent = `Patient ID: ${me.id}`;
       } catch (e) {
         window.location.href = 'index.html';
       }
@@ -85,11 +300,31 @@
       window.location.href = 'index.html';
     };
 
+    // ── Records rendering helper ─────────────────────────────
+    function renderRecords(recs, target) {
+      if (!recs.length) {
+        target.innerHTML = '<div class="empty-state">No records yet.</div>';
+        return;
+      }
+      target.innerHTML = recs.map(r => `
+        <div class="row-item">
+          <div>
+            <div class="row-title">${r.title || '(untitled)'}</div>
+            <div class="row-meta">#${r.id} · ${new Date(r.created_at).toLocaleDateString()}</div>
+            ${r.content_text ? `<div class="row-body">${r.content_text}</div>` : ''}
+          </div>
+          <span class="tag">${r.record_type}</span>
+        </div>
+      `).join('');
+    }
+
     document.getElementById('loadRecords').onclick = async () => {
       const recs = await api('/api/v2/records', 'GET');
-      document.getElementById('records').innerHTML = recs.map(r =>
-        `<div class="rec"><b>#${r.id} ${r.title}</b> (${r.record_type})<br>${r.content_text || ''}</div>`
-      ).join('');
+      renderRecords(recs, document.getElementById('records'));
+    };
+    document.getElementById('refreshOverview').onclick = async () => {
+      const recs = await api('/api/v2/records', 'GET');
+      renderRecords(recs, document.getElementById('overviewRecords'));
     };
 
     document.getElementById('addRecord').onclick = async () => {
@@ -98,52 +333,68 @@
         record_type: 'note',
         content_text: document.getElementById('recContent').value,
       });
+      document.getElementById('recTitle').value = '';
+      document.getElementById('recContent').value = '';
       document.getElementById('loadRecords').click();
     };
 
     document.getElementById('lookupBtn').onclick = async () => {
       const id = document.getElementById('lookupId').value;
+      const box = document.getElementById('lookupResult');
+      box.style.display = 'block';
       try {
         const rec = await api(`/api/v2/records/${id}`, 'GET');
-        document.getElementById('lookupResult').textContent = JSON.stringify(rec, null, 2);
+        box.textContent = JSON.stringify(rec, null, 2);
       } catch (e) {
-        document.getElementById('lookupResult').textContent = e.message;
+        box.textContent = e.message;
       }
     };
 
     document.getElementById('importBtn').onclick = async () => {
+      const box = document.getElementById('importResult');
+      box.style.display = 'block';
       try {
         const rec = await api('/api/v2/records/fetch-from-url', 'POST', {
           title: document.getElementById('importTitle').value,
           source_url: document.getElementById('importUrl').value,
         });
-        document.getElementById('importResult').textContent = JSON.stringify(rec, null, 2);
+        box.textContent = JSON.stringify(rec, null, 2);
       } catch (e) {
-        document.getElementById('importResult').textContent = e.message;
+        box.textContent = e.message;
       }
     };
 
     document.getElementById('loadRx').onclick = async () => {
       const pid = document.getElementById('rxPatientId').value;
+      const target = document.getElementById('rxList');
       try {
         const list = await api(`/api/v2/pharmacy/prescriptions/${pid}`, 'GET');
-        document.getElementById('rxList').innerHTML = list.map(p =>
-          `<div>#${p.id} ${p.medication} qty ${p.quantity} refills ${p.refills_used}/${p.refills_allowed} $${p.unit_price}</div>`
-        ).join('');
+        if (!list.length) { target.innerHTML = '<div class="empty-state">No prescriptions found.</div>'; return; }
+        target.innerHTML = list.map(p => `
+          <div class="row-item">
+            <div>
+              <div class="row-title">${p.medication}</div>
+              <div class="row-meta">#${p.id} · Qty ${p.quantity} · Refills ${p.refills_used}/${p.refills_allowed} · $${p.unit_price}/unit</div>
+            </div>
+            <span class="tag ${p.status === 'active' ? '' : 'tag-warning'}">${p.status}</span>
+          </div>
+        `).join('');
       } catch (e) {
-        document.getElementById('rxList').textContent = e.message;
+        target.innerHTML = `<div class="empty-state">${e.message}</div>`;
       }
     };
 
     document.getElementById('refillBtn').onclick = async () => {
+      const box = document.getElementById('refillResult');
+      box.style.display = 'block';
       try {
         const res = await api('/api/v2/pharmacy/refill', 'POST', {
           prescription_id: Number(document.getElementById('refillPrescriptionId').value),
           quantity: Number(document.getElementById('refillQty').value),
         });
-        document.getElementById('refillResult').textContent = JSON.stringify(res, null, 2);
+        box.textContent = JSON.stringify(res, null, 2);
       } catch (e) {
-        document.getElementById('refillResult').textContent = e.message;
+        box.textContent = e.message;
       }
     };
 
@@ -151,15 +402,19 @@
     document.getElementById('chatSend').onclick = async () => {
       const input = document.getElementById('chatInput');
       const text = input.value;
+      if (!text.trim()) return;
+      const log = document.getElementById('chatLog');
+      log.innerHTML += `<div class="chat-msg user"><div class="chat-bubble">${text}</div></div>`;
+      input.value = '';
+      log.scrollTop = log.scrollHeight;
       const res = await api('/api/v2/chatbot/chat', 'POST', { session_id: chatSessionId, message: text });
       chatSessionId = res.session_id;
-      const log = document.getElementById('chatLog');
-      // NOTE: intentionally using innerHTML with unsanitized reply content -
-      // reflected/stored XSS surface if the assistant ever echoes injected
-      // HTML from a record back into `reply`.
-      log.innerHTML += `<div class="you">You: ${text}</div><div class="bot">Assistant: ${res.reply}</div>`;
-      input.value = '';
+      log.innerHTML += `<div class="chat-msg assistant"><div class="chat-bubble">${res.reply}</div></div>`;
+      log.scrollTop = log.scrollHeight;
     };
+    document.getElementById('chatInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') document.getElementById('chatSend').click();
+    });
 
     document.getElementById('msgSend').onclick = async () => {
       await api('/api/v2/messages', 'POST', {
@@ -171,11 +426,21 @@
 
     document.getElementById('threadLoad').onclick = async () => {
       const uid = document.getElementById('threadWith').value;
+      const target = document.getElementById('msgThread');
       const msgs = await api(`/api/v2/messages/thread/${uid}`, 'GET');
-      document.getElementById('msgThread').innerHTML = msgs.map(m =>
-        `<div>[${m.sender_id} -> ${m.recipient_id}] ${m.body}</div>`
-      ).join('');
+      if (!msgs.length) { target.innerHTML = '<div class="empty-state">No messages found.</div>'; return; }
+      target.innerHTML = msgs.map(m => `
+        <div class="row-item">
+          <div>
+            <div class="row-meta">From user #${m.sender_id} → To user #${m.recipient_id}</div>
+            <div class="row-body">${m.body}</div>
+          </div>
+        </div>
+      `).join('');
     };
+
+    // Load overview records on first paint
+    document.getElementById('refreshOverview').click();
   </script>
 </body>
 </html>

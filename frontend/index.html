@@ -2,22 +2,40 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Aegis Health - Login</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in — Aegis Health</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="auth-box">
-    <h1>Aegis Health</h1>
-    <p class="sub">Telehealth & Personal Health Records</p>
-    <form id="loginForm">
-      <label>Email</label>
-      <input type="email" id="email" required>
-      <label>Password</label>
-      <input type="password" id="password" required>
-      <button type="submit">Log In</button>
-    </form>
-    <p id="err" class="error"></p>
-    <p class="hint">No account? <a href="register.html">Register</a></p>
+  <div class="auth-shell">
+    <div class="auth-side">
+      <div class="mark">
+        <div class="mark-icon">AH</div>
+        <div class="mark-text">Aegis Health</div>
+      </div>
+      <h1>Your care team, your records, in one place.</h1>
+      <p>View lab results, manage prescriptions, message your care team, and get instant guidance from your health assistant — all in one secure portal.</p>
+      <div class="disclosure">
+        This is a training environment built for security research. Do not enter real personal or medical information.
+      </div>
+    </div>
+    <div class="auth-form-panel">
+      <h2>Sign in</h2>
+      <p class="sub">Enter your details to access your patient portal.</p>
+      <div class="error-banner" id="err"></div>
+      <form id="loginForm">
+        <div class="field">
+          <label for="email">Email address</label>
+          <input type="email" id="email" placeholder="you@example.com" required>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn-primary">Sign in</button>
+      </form>
+      <p class="auth-switch">Don't have an account? <a href="register.html">Create one</a></p>
+    </div>
   </div>
   <script src="app.js"></script>
   <script>
@@ -25,16 +43,16 @@
       e.preventDefault();
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
+      const errBox = document.getElementById('err');
+      errBox.classList.remove('show');
       try {
         const data = await api('/api/v2/auth/login', 'POST', { email, password });
-        // VULN: tokens stored in localStorage (XSS-accessible) rather than
-        // an httpOnly cookie - if any stored/reflected XSS exists anywhere
-        // in the app, session tokens are directly stealable via JS.
         localStorage.setItem('access_token', data.access_token);
         localStorage.setItem('refresh_token', data.refresh_token);
         window.location.href = 'dashboard.html';
       } catch (err) {
-        document.getElementById('err').textContent = err.message;
+        errBox.textContent = err.message;
+        errBox.classList.add('show');
       }
     });
   </script>

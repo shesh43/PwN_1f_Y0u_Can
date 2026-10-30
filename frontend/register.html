@@ -2,36 +2,53 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Aegis Health - Register</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create account — Aegis Health</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="auth-box">
-    <h1>Create Account</h1>
-    <form id="regForm">
-      <label>Full name</label>
-      <input type="text" id="full_name" required>
-      <label>Email</label>
-      <input type="email" id="email" required>
-      <label>Password</label>
-      <input type="password" id="password" required>
-      <!--
-        VULN A04/API3: role selector exposed directly in the client. Even if
-        removed from the UI, the API still accepts role="admin" in the
-        register payload with no server-side allowlist - so hiding this
-        field client-side would be a false fix. Left visible here on
-        purpose to make the client-trust issue obvious during testing.
-      -->
-      <label>Role (demo - normally inferred)</label>
-      <select id="role">
-        <option value="patient">patient</option>
-        <option value="doctor">doctor</option>
-        <option value="admin">admin</option>
-      </select>
-      <button type="submit">Register</button>
-    </form>
-    <p id="err" class="error"></p>
-    <p class="hint"><a href="index.html">Back to login</a></p>
+  <div class="auth-shell">
+    <div class="auth-side">
+      <div class="mark">
+        <div class="mark-icon">AH</div>
+        <div class="mark-text">Aegis Health</div>
+      </div>
+      <h1>Get set up in under a minute.</h1>
+      <p>Create your account to start managing appointments, prescriptions, and messages with your care team.</p>
+      <div class="disclosure">
+        This is a training environment built for security research. Do not enter real personal or medical information.
+      </div>
+    </div>
+    <div class="auth-form-panel">
+      <h2>Create your account</h2>
+      <p class="sub">A few details to get you started.</p>
+      <div class="error-banner" id="err"></div>
+      <form id="regForm">
+        <div class="field">
+          <label for="full_name">Full name</label>
+          <input type="text" id="full_name" placeholder="Jordan Lee" required>
+        </div>
+        <div class="field">
+          <label for="email">Email address</label>
+          <input type="email" id="email" placeholder="you@example.com" required>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="••••••••" required>
+        </div>
+        <div class="field">
+          <label for="role">Account type</label>
+          <select id="role">
+            <option value="patient">Patient</option>
+            <option value="doctor">Doctor</option>
+            <option value="admin">Admin</option>
+          </select>
+          <div class="hint">Demo only — a real signup flow would never let you self-select a privileged role here.</div>
+        </div>
+        <button type="submit" class="btn-primary">Create account</button>
+      </form>
+      <p class="auth-switch">Already have an account? <a href="index.html">Sign in</a></p>
+    </div>
   </div>
   <script src="app.js"></script>
   <script>
@@ -43,11 +60,14 @@
         password: document.getElementById('password').value,
         role: document.getElementById('role').value,
       };
+      const errBox = document.getElementById('err');
+      errBox.classList.remove('show');
       try {
         await api('/api/v2/auth/register', 'POST', body);
         window.location.href = 'index.html';
       } catch (err) {
-        document.getElementById('err').textContent = err.message;
+        errBox.textContent = err.message;
+        errBox.classList.add('show');
       }
     });
   </script>
