@@ -9,7 +9,7 @@ from .routers import auth_router, users_router, records_router, pharmacy_router
 from .routers import messages_router, wearable_router, admin_router, chatbot_router
 
 app = FastAPI(
-    title="Aegis Health API",
+    title="MEDIVULN-X API",
     version="2.0.0",
     description="Telehealth & personal health record platform - INTENTIONALLY "
                  "VULNERABLE for pentest training purposes. See VULNS.md.",
@@ -69,4 +69,4 @@ def on_startup():
 
 @app.get("/api/v2/health")
 def health():
-    return {"status": "ok", "service": "aegis-health-api", "version": "2.0.0"}
+    return {"status": "ok", "service": "medivuln-x-api", "version": "2.0.0"}

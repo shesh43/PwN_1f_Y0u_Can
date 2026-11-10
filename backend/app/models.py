@@ -1,5 +1,5 @@
 """
-Aegis Health - Database models
+MEDIVULN-X - Database models
 INTENTIONALLY VULNERABLE APPLICATION - see VULNS.md in project root.
 Do not deploy this anywhere public.
 """

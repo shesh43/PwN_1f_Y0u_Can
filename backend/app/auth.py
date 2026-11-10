@@ -13,7 +13,7 @@ from typing import Optional
 from jose import jwt, JWTError
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 
 from .database import get_db
@@ -21,13 +21,15 @@ from .models import User
 
 # VULN-01: weak, hardcoded, short JWT secret - a real target would leak this
 # via source, .env in a repo, or brute force.
-SECRET_KEY = "aegis2035"
+SECRET_KEY = "medivulnx2035"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 14
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v2/auth/login")
+# HTTPBearer gives Swagger a simple "paste your token" Authorize box instead
+# of a username/password/client_id form - matches our actual JSON login flow.
+bearer_scheme = HTTPBearer()
 
 
 def verify_password(plain, hashed):
@@ -65,8 +67,11 @@ def decode_token(token: str):
         raise HTTPException(status_code=401, detail="Invalid or expired token")
 
 
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
-    payload = decode_token(token)
+def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+    db: Session = Depends(get_db),
+) -> User:
+    payload = decode_token(credentials.credentials)
     if payload.get("type") != "access":
         raise HTTPException(status_code=401, detail="Wrong token type")
     user_id = payload.get("sub")

@@ -1,4 +1,4 @@
-# Aegis Health
+# MEDIVULN-X
 
 A deliberately vulnerable telehealth platform built to practice and demonstrate real-world web, API, and AI security assessment — end to end, from exploitation to remediation.
 
@@ -10,15 +10,15 @@ This is not a checklist app. Every vulnerability here was designed the way it ac
 
 Most vulnerable-by-design applications teach you to recognize a vulnerability class by its symptom — "this looks like SQL injection" or "this response looks like it leaked data." That's useful, but it's not how vulnerabilities get found in real systems. Real systems don't label their bugs.
 
-Aegis Health is built the other way around: as a working application first, with vulnerabilities that exist *because of how the code is actually written*, not because a label says "vulnerable here." Every finding has a root cause you can point to in the source, a reason the developer's assumption failed, and a fix that addresses that specific failure — not a generic "add validation" note.
+MEDIVULN-X is built the other way around: as a working application first, with vulnerabilities that exist *because of how the code is actually written*, not because a label says "vulnerable here." Every finding has a root cause you can point to in the source, a reason the developer's assumption failed, and a fix that addresses that specific failure — not a generic "add validation" note.
 
-The application also intentionally covers a category most vulnerable-app projects skip entirely: AI-specific vulnerabilities. Aegis Health includes an AI symptom-checker with a retrieval-augmented generation (RAG) pipeline and tool-calling, deliberately built with the same kind of trust-boundary failure that causes prompt injection in production LLM systems. If you've only practiced OWASP Top 10 web vulnerabilities, this is the part of the application that will be unfamiliar — and it's the part most worth spending time on, because LLM-integrated applications are becoming the norm, not the exception.
+The application also intentionally covers a category most vulnerable-app projects skip entirely: AI-specific vulnerabilities. MEDIVULN-X includes an AI symptom-checker with a retrieval-augmented generation (RAG) pipeline and tool-calling, deliberately built with the same kind of trust-boundary failure that causes prompt injection in production LLM systems. If you've only practiced OWASP Top 10 web vulnerabilities, this is the part of the application that will be unfamiliar — and it's the part most worth spending time on, because LLM-integrated applications are becoming the norm, not the exception.
 
 ---
 
 ## What you're testing
 
-Aegis Health is a telehealth and personal health record platform with:
+MEDIVULN-X is a telehealth and personal health record platform with:
 
 - **Patient portal** — registration, authentication, session management
 - **Health records** — lab reports, imaging notes, clinical notes, with file upload and external URL import
@@ -43,7 +43,7 @@ Four roles exist: patient, doctor, pharmacist, and admin. Understanding what eac
 
 ```bash
 git clone <this-repo>
-cd aegis-health
+cd medivuln-x
 
 python3 -m venv venv
 source venv/bin/activate          # Windows: venv\Scripts\activate
@@ -74,11 +74,11 @@ Open `http://localhost:3000` for the patient portal, or `http://localhost:8000/d
 
 | Role | Email | Password |
 |---|---|---|
-| Patient | alice.patient@aegishealthcorp.com | Patient123! |
-| Patient | bob.patient@aegishealthcorp.com | Patient123! |
-| Doctor | dr.chen@aegishealthcorp.com | Doctor123! |
-| Pharmacist | pharm.rao@aegishealthcorp.com | Pharm123! |
-| Admin | admin@aegishealthcorp.com | Admin123! |
+| Patient | alice.patient@medivulnx.com | Patient123! |
+| Patient | bob.patient@medivulnx.com | Patient123! |
+| Doctor | dr.chen@medivulnx.com | Doctor123! |
+| Pharmacist | pharm.rao@medivulnx.com | Pharm123! |
+| Admin | admin@medivulnx.com | Admin123! |
 
 Having two patient accounts (Alice and Bob) is deliberate — most of the access-control findings in this application only become visible when you have a second identity to test *against*. A single-account tester misses them entirely.
 

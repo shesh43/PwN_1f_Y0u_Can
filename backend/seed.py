@@ -1,7 +1,7 @@
 """
 Seeds the database with demo users and data across every role so the app is
 immediately pentestable. Run once after first starting the server, or delete
-aegis.db and rerun to reset.
+medivulnx.db and rerun to reset.
 """
 import sys
 import os
@@ -15,19 +15,19 @@ init_db()
 db = SessionLocal()
 
 if db.query(models.User).count() > 0:
-    print("DB already seeded. Delete backend/aegis.db to reset.")
+    print("DB already seeded. Delete backend/medivulnx.db to reset.")
     sys.exit(0)
 
 users = [
-    models.User(email="alice.patient@aegishealthcorp.com", hashed_password=hash_password("Patient123!"),
+    models.User(email="alice.patient@medivulnx.com", hashed_password=hash_password("Patient123!"),
                 full_name="Alice Patient", role="patient"),
-    models.User(email="bob.patient@aegishealthcorp.com", hashed_password=hash_password("Patient123!"),
+    models.User(email="bob.patient@medivulnx.com", hashed_password=hash_password("Patient123!"),
                 full_name="Bob Patient", role="patient"),
-    models.User(email="dr.chen@aegishealthcorp.com", hashed_password=hash_password("Doctor123!"),
+    models.User(email="dr.chen@medivulnx.com", hashed_password=hash_password("Doctor123!"),
                 full_name="Dr. Sarah Chen", role="doctor"),
-    models.User(email="pharm.rao@aegishealthcorp.com", hashed_password=hash_password("Pharm123!"),
+    models.User(email="pharm.rao@medivulnx.com", hashed_password=hash_password("Pharm123!"),
                 full_name="Raj Rao", role="pharmacist"),
-    models.User(email="admin@aegishealthcorp.com", hashed_password=hash_password("Admin123!"),
+    models.User(email="admin@medivulnx.com", hashed_password=hash_password("Admin123!"),
                 full_name="System Admin", role="admin"),
 ]
 db.add_all(users)
@@ -65,8 +65,8 @@ db.commit()
 db.close()
 
 print("Seeded users (email / password):")
-print("  alice.patient@aegishealthcorp.com / Patient123!   (patient)")
-print("  bob.patient@aegishealthcorp.com   / Patient123!   (patient)")
-print("  dr.chen@aegishealthcorp.com       / Doctor123!    (doctor)")
-print("  pharm.rao@aegishealthcorp.com     / Pharm123!     (pharmacist)")
-print("  admin@aegishealthcorp.com         / Admin123!     (admin)")
+print("  alice.patient@medivulnx.com / Patient123!   (patient)")
+print("  bob.patient@medivulnx.com   / Patient123!   (patient)")
+print("  dr.chen@medivulnx.com       / Doctor123!    (doctor)")
+print("  pharm.rao@medivulnx.com     / Pharm123!     (pharmacist)")
+print("  admin@medivulnx.com         / Admin123!     (admin)")

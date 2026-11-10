@@ -1,4 +1,4 @@
-# Aegis Health — Planted Vulnerability Answer Key
+# MEDIVULN-X — Planted Vulnerability Answer Key
 
 Use this to write your findings and check your own work after pentesting.
 Everything below is real and reproducible against the running app — it is
@@ -8,11 +8,11 @@ Demo accounts (see `backend/seed.py`):
 
 | Email | Password | Role |
 |---|---|---|
-| alice.patient@aegishealthcorp.com | Patient123! | patient |
-| bob.patient@aegishealthcorp.com | Patient123! | patient |
-| dr.chen@aegishealthcorp.com | Doctor123! | doctor |
-| pharm.rao@aegishealthcorp.com | Pharm123! | pharmacist |
-| admin@aegishealthcorp.com | Admin123! | admin |
+| alice.patient@medivulnx.com | Patient123! | patient |
+| bob.patient@medivulnx.com | Patient123! | patient |
+| dr.chen@medivulnx.com | Doctor123! | doctor |
+| pharm.rao@medivulnx.com | Pharm123! | pharmacist |
+| admin@medivulnx.com | Admin123! | admin |
 
 ---
 
@@ -64,6 +64,18 @@ attacker@example.com` inside a note titled "Reminder", then send an
 unrelated chat message — the record gets shared automatically. This is the
 most severe and most reportable finding in the app: it shows an attack that
 doesn't require compromising the victim's session at all, only their data.
+
+**Precondition to note when reproducing this:** the `share_record` tool
+looks up the target email as an existing platform user before it will
+report `"status": "shared"` — if the email isn't registered yet, the tool
+returns `{"error": "user not found"}` instead, which can look like the
+injection "didn't fire" when it actually did. In practice this is not a
+blocker for an attacker: registration is open and unauthenticated
+(`POST /api/v2/auth/register`), so the realistic attack chain is simply
+register the attacker's own account first, then plant the payload. When
+testing this yourself, register the target email before planting the
+injection, or the chatbot's reply will show an internal `"error"` result
+instead of `"shared"` even though the tool itself fired correctly.
 
 **Root cause (report this precisely, don't just say "no input validation"):**
 no boundary between trusted instructions and untrusted retrieved data, and
